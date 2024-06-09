@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-#define M 3  // Maximum threads in the m-section
+int M = 3;  // Maximum threads in the m-section
 sem_t m_lock; // Shared semaphore for synchronization
 
 int current_count = 0;  // Tracks threads in the m-section (global)
