@@ -35,6 +35,9 @@ private:
   pthread_cond_t cond_;
 };
 
+// **Barrier object must be declared before thread_fun**
+Barrier barrier(4); // Assuming 4 threads (adjust as needed)
+
 void* thread_fun(void* arg) {
   int threadId = *reinterpret_cast<int*>(arg);
 
@@ -49,7 +52,6 @@ void* thread_fun(void* arg) {
 
 int main() {
   const int numThreads = 4;
-  Barrier barrier(numThreads);
 
   pthread_t threads[numThreads];
   int threadIds[numThreads];
