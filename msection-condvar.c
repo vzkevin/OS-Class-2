@@ -2,68 +2,78 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#define MAX_THREADS 3  // Maximum threads in the critical section
+int max = 3;
 
-pthread_mutex_t mutex_lock;  // Mutex for synchronization
-pthread_cond_t cond_var;    // Condition variable to signal waiting threads
+// Mutex for sync
+pthread_mutex_t mutex;
 
-int current_count = 0;  // Tracks threads in the critical section
+// Condition var for waiting threads
+pthread_cond_t cond_var;
 
+// Thread counter
+int counter = 0; 
+
+// Function to enter
 void enter(void *arg) {
-    pthread_mutex_lock(&mutex_lock);
-    while (current_count >= MAX_THREADS) {
-        pthread_cond_wait(&cond_var, &mutex_lock);
+    pthread_mutex(&mutex);
+    while (counter >= max) {
+        pthread_cond_wait(&cond_var, &mutex);
     }
-    current_count++;
-    pthread_mutex_unlock(&mutex_lock);
+    counter++;
+    pthread_mutex_unlock(&mutex);
 }
 
+// Function to leave
 void leave(void *arg) {
-    pthread_mutex_lock(&mutex_lock);
-    current_count--;
-    if (current_count < MAX_THREADS) {
+    pthread_mutex(&mutex);
+    counter--;
+    if (counter < max) {
         pthread_cond_signal(&cond_var);
     }
-    pthread_mutex_unlock(&mutex_lock);
+    pthread_mutex_unlock(&mutex);
 }
 
+// Function do critical work
 void do_critical_work(void) {
     pthread_t tid = pthread_self();
-    printf("Thread %lu: In critical section, %d threads here\n", tid, current_count);
+    printf("Thread %lu: In critical section, %d threads here\n", tid, counter);
 }
 
+// Function executed by each thread
 void *do_work(void *arg) {
     while (1) {
         enter(arg);
         do_critical_work();
         leave(arg);
-        // Add your additional work here (not shown for brevity)
     }
     return NULL;
 }
 
 int main(void) {
-    int i, num_threads = 10;  // Number of threads
-    pthread_t threads[num_threads];
+    long i;
 
-    pthread_mutex_init(&mutex_lock, NULL);
+    // Number of threads
+    long n = 10;
+    pthread_t threads[n];
+
+    pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond_var, NULL);
 
-    for (i = 0; i < num_threads; i++) {
+    for (i = 0; i < n; i++) {
         if (pthread_create(&threads[i], NULL, do_work, NULL) != 0) {
-            perror("pthread_create failed");
+            printf("pthread_create failed");
             return 1;
         }
     }
 
-    for (i = 0; i < num_threads; i++) {
+    for (i = 0; i < n; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
-            perror("pthread_join failed");
+            printf("pthread_join failed");
             return 1;
         }
     }
 
-    pthread_mutex_destroy(&mutex_lock);
+    pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond_var);
     return 0;
 }

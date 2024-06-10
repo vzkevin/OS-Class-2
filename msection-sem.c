@@ -44,6 +44,7 @@ void *do_work(void *arg) {
 
 int main(void) {
     long i;
+    
     // Number of threads
     long n = 10;
     pthread_t threads[n];
