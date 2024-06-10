@@ -59,6 +59,7 @@ int main(void) {
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond_var, NULL);
 
+    // Create threads
     for (i = 0; i < n; i++) {
         if (pthread_create(&threads[i], NULL, do_work, NULL) != 0) {
             printf("pthread_create failed");
@@ -66,6 +67,7 @@ int main(void) {
         }
     }
 
+    // now wait for the threads to complete
     for (i = 0; i < n; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
             printf("pthread_join failed");
@@ -73,6 +75,7 @@ int main(void) {
         }
     }
 
+    // Destroy
     pthread_mutex_destroy(&mutex);
     pthread_cond_destroy(&cond_var);
     return 0;
