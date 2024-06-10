@@ -4,7 +4,7 @@
 #include <semaphore.h>
 
 // global maximum threads
-int max_threads = 3;
+int max = 3;
 sem_t mutex;
 
 // Thread counter
@@ -48,8 +48,8 @@ int main(void) {
     long n = 10;
     pthread_t threads[n];
 
-    // Initialize semaphore with initial value max_threads
-    sem_init(&mutex, 0, max_threads); 
+    // Initialize semaphore with initial value max threads
+    sem_init(&mutex, 0, max); 
 
     // Create threads
     for (i = 0; i < n; i++) {
