@@ -3,17 +3,19 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-int M = 3;  // Maximum threads in the m-section
-sem_t m_lock; // Shared semaphore for synchronization
+int M = 3;  // Global maximum threads
+sem_t m_lock; // For sync
 
-int current_count = 0;  // Tracks threads in the m-section (global)
+int current_count = 0;  // Thread counter
 
+// Function to enter the critical section
 void enter(void) {
     sem_wait(&m_lock);
     current_count++;
     sem_post(&m_lock);
 }
 
+// Function to leave the critical section
 void leave(void) {
     sem_wait(&m_lock);
     current_count--;
@@ -22,23 +24,25 @@ void leave(void) {
     }
 }
 
+// Function to perform critical work
 void doCriticalWork(void) {
     pthread_t tid = pthread_self();
     printf("Thread %lu: In critical section, %d threads here\n", tid, current_count);
 }
 
+// Function executed by each thread
 void *doWork(void *arg) {
     while (1) {
         enter();
         doCriticalWork();
         leave();
-        // Add your additional work here (not shown for brevity)
     }
     return NULL;
 }
 
 int main(void) {
-    int i, n = 10;  // Number of threads (N)
+    long i;
+    long n = 10;  // Threads
     pthread_t threads[n];
 
     sem_init(&m_lock, 0, M);  // Initialize semaphore with initial value M
