@@ -62,7 +62,7 @@ int main(void) {
     // Create threads
     for (i = 0; i < n; i++) {
         if (pthread_create(&threads[i], NULL, do_work, NULL) != 0) {
-            printf("pthread_create failed");
+            printf("create failed");
             return 1;
         }
     }
@@ -70,7 +70,7 @@ int main(void) {
     // now wait for the threads to complete
     for (i = 0; i < n; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
-            printf("pthread_join failed");
+            printf("join failed");
             return 1;
         }
     }
