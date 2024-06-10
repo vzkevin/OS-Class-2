@@ -3,38 +3,38 @@
 #include <pthread.h>
 #include <semaphore.h>
 
-int M = 3;  // Global maximum threads
-sem_t m_lock; // For sync
+int max_threads = 3;  // Global maximum threads
+sem_t mutex_lock; // For sync
 
 int current_count = 0;  // Thread counter
 
 // Function to enter the critical section
 void enter(void) {
-    sem_wait(&m_lock);
+    sem_wait(&mutex_lock);
     current_count++;
-    sem_post(&m_lock);
+    sem_post(&mutex_lock);
 }
 
 // Function to leave the critical section
 void leave(void) {
-    sem_wait(&m_lock);
+    sem_wait(&mutex_lock);
     current_count--;
     if (current_count > 0) {
-        sem_post(&m_lock);
+        sem_post(&mutex_lock);
     }
 }
 
 // Function to perform critical work
-void doCriticalWork(void) {
+void do_critical_work(void) {
     pthread_t tid = pthread_self();
     printf("Thread %lu: In critical section, %d threads here\n", tid, current_count);
 }
 
 // Function executed by each thread
-void *doWork(void *arg) {
+void *do_work(void *arg) {
     while (1) {
         enter();
-        doCriticalWork();
+        do_critical_work();
         leave();
     }
     return NULL;
@@ -42,25 +42,25 @@ void *doWork(void *arg) {
 
 int main(void) {
     long i;
-    long n = 10;  // Threads
-    pthread_t threads[n];
+    long num_threads = 10;  // Number of threads
+    pthread_t threads[num_threads];
 
-    sem_init(&m_lock, 0, M);  // Initialize semaphore with initial value M
+    sem_init(&mutex_lock, 0, max_threads);  // Initialize semaphore with initial value max_threads
 
-    for (i = 0; i < n; i++) {
-        if (pthread_create(&threads[i], NULL, doWork, NULL) != 0) {
+    for (i = 0; i < num_threads; i++) {
+        if (pthread_create(&threads[i], NULL, do_work, NULL) != 0) {
             perror("pthread_create failed");
             return 1;
         }
     }
 
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < num_threads; i++) {
         if (pthread_join(threads[i], NULL) != 0) {
             perror("pthread_join failed");
             return 1;
         }
     }
 
-    sem_destroy(&m_lock);  // Destroy semaphore
+    sem_destroy(&mutex_lock);  // Destroy semaphore
     return 0;
 }
