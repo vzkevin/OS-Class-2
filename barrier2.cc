@@ -1,6 +1,6 @@
 #include <pthread.h>
 #include <atomic>
-#include <iostream> // For std::cout
+#include <iostream>
 
 class Barrier {
 public:
@@ -30,13 +30,12 @@ public:
 
 private:
     int num_threads_;
-    std::atomic<int> waiting_count_;  // Use atomic for thread-safe updates
+    std::atomic<int> waiting_count_;
     pthread_mutex_t mutex_;
     pthread_cond_t cond_var_;
 };
 
-// Barrier object must be declared before threadFun
-Barrier barrier(4); // Assuming 4 threads (adjust as needed)
+Barrier barrier(4);
 
 void* threadFun(void* arg) {
     int thread_id = *reinterpret_cast<int*>(arg);
