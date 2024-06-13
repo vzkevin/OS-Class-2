@@ -17,11 +17,11 @@ public:
         pthread_mutex_lock(&mutex_);
         waiting_count_++;
         if (waiting_count_ == num_threads_) {
-            // Last thread to arrive, unblock all waiting threads
+            // Last thread arrives so unblock all
             waiting_count_ = 0;
             pthread_cond_broadcast(&cond_var_);
         } else {
-            // Not the last thread, wait for the barrier to be raised
+            // Still more wait for threads
             pthread_cond_wait(&cond_var_, &mutex_);
         }
         pthread_mutex_unlock(&mutex_);
