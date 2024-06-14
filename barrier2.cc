@@ -34,7 +34,8 @@ private:
     pthread_cond_t cond_var_;
 };
 
-Barrier barrier(4);
+// Create a Barrier object with 4 threads
+Barrier barrier(4); 
 
 void* threadFun(void* arg) {
     int thread_id = *reinterpret_cast<int*>(arg);
@@ -51,14 +52,19 @@ void* threadFun(void* arg) {
 int main() {
     const int num_threads = 4;
 
+    // Array to hold thread ids
     pthread_t threads[num_threads];
+
+    // Ids as integers
     int thread_ids[num_threads];
 
+    // Create threads
     for (int i = 0; i < num_threads; i++) {
         thread_ids[i] = i;
         pthread_create(&threads[i], NULL, threadFun, &thread_ids[i]);
     }
 
+    // Wait for all threads to finish
     for (int i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
     }
