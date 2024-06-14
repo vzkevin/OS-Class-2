@@ -2,61 +2,51 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-int max = 3;
+#define MAX_THREADS 3  // Maximum threads in the critical section
 
-// Mutex for sync
-pthread_mutex_t mutex;
+pthread_mutex_t mutex_lock;  // Mutex for synchronization
+pthread_cond_t cond_var;    // Condition variable to signal waiting threads
 
-// Condition var for waiting threads
-pthread_cond_t cond_var;
+int current_count = 0;  // Tracks threads in the critical section
 
-// Thread counter
-int counter = 0; 
-
-// Function to enter
 void enter(void *arg) {
-    pthread_mutex(&mutex);
-    while (counter >= max) {
-        pthread_cond_wait(&cond_var, &mutex);
+    pthread_mutex_lock(&mutex_lock);
+    while (current_count >= MAX_THREADS) {
+        pthread_cond_wait(&cond_var, &mutex_lock);
     }
-    counter++;
-    pthread_mutex_unlock(&mutex);
+    current_count++;
+    pthread_mutex_unlock(&mutex_lock);
 }
 
-// Function to leave
 void leave(void *arg) {
-    pthread_mutex(&mutex);
-    counter--;
-    if (counter < max) {
+    pthread_mutex_lock(&mutex_lock);
+    current_count--;
+    if (current_count < MAX_THREADS) {
         pthread_cond_signal(&cond_var);
     }
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&mutex_lock);
 }
 
-// Function do critical work
 void do_critical_work(void) {
     pthread_t tid = pthread_self();
-    printf("Thread %lu: In critical section, %d threads here\n", tid, counter);
+    printf("Thread %lu: In critical section, %d threads here\n", tid, current_count);
 }
 
-// Function executed by each thread
 void *do_work(void *arg) {
     while (1) {
         enter(arg);
         do_critical_work();
         leave(arg);
+        // Add your additional work here (not shown for brevity)
     }
     return NULL;
 }
 
 int main(void) {
-    long i;
+    int i, num_threads = 10;  // Number of threads
+    pthread_t threads[num_threads];
 
-    // Number of threads
-    long n = 10;
-    pthread_t threads[n];
-
-    pthread_mutex_init(&mutex, NULL);
+    pthread_mutex_init(&mutex_lock, NULL);
     pthread_cond_init(&cond_var, NULL);
 
     // Create threads
@@ -75,8 +65,7 @@ int main(void) {
         }
     }
 
-    // Destroy
-    pthread_mutex_destroy(&mutex);
+    pthread_mutex_destroy(&mutex_lock);
     pthread_cond_destroy(&cond_var);
     return 0;
 }
