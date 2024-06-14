@@ -1,5 +1,5 @@
 #include <pthread.h>
-#include <atomic>
+#include <iostream>
 
 class Barrier {
 public:
@@ -29,7 +29,7 @@ public:
 
 private:
     int num_threads_;
-    std::atomic<int> waiting_count_;
+    int waiting_count_;
     pthread_mutex_t mutex_;
     pthread_cond_t cond_var_;
 };

@@ -1,5 +1,4 @@
 #include <pthread.h>
-#include <atomic>
 #include <iostream>
 
 class Barrier {
@@ -30,7 +29,7 @@ public:
 
 private:
     int num_threads_;
-    std::atomic<int> waiting_count_;
+    int waiting_count_;
     pthread_mutex_t mutex_;
     pthread_cond_t cond_var_;
 };
@@ -41,9 +40,9 @@ void* threadFun(void* arg) {
     int thread_id = *reinterpret_cast<int*>(arg);
 
     for (int i = 0; i < 3; i++) {
-        std::cout << "Thread " << thread_id << " before barrier " << i << std::endl;
+        printf("Thread %d before barrier %d\n", thread_id, i);
         barrier.wait();
-        std::cout << "Thread " << thread_id << " after barrier " << i << std::endl;
+        printf("Thread %d after barrier %d\n", thread_id, i);
     }
 
     pthread_exit(NULL);
