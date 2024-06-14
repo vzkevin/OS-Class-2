@@ -15,7 +15,6 @@ int counter = 0;
 
 // Function to enter
 void enter(void *arg) {
-    pthread_mutex(&mutex);
     pthread_mutex_lock(&mutex);
     while (counter >= max) {
         pthread_cond_wait(&cond_var, &mutex);
